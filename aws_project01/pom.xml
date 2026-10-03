@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>4.0.8</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+    <groupId>com.example</groupId>
+    <artifactId>aws_project01</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>aws_project01</name>
+    <description>aws_project01</description>
+    <url/>
+    <licenses>
+        <license/>
+    </licenses>
+    <developers>
+        <developer/>
+    </developers>
+    <scm>
+        <connection/>
+        <developerConnection/>
+        <tag/>
+        <url/>
+    </scm>
+    <properties>
+        <java.version>17</java.version>
+
+        <!-- Equivalente ao "group" do build.gradle: o ID da sua conta no Docker Hub.
+             Troque pelo ID que voce usou ao criar o repositorio no Docker Hub. -->
+        <docker.image.prefix>leodwahhab</docker.image.prefix>
+        <!-- Equivalente ao "bootJar.baseName": o nome do repositorio criado no Docker Hub. -->
+        <docker.image.name>curso_aws_project01</docker.image.name>
+        <!-- Equivalente ao "bootJar.version": a versao/tag da imagem que sera gerada.
+             Para gerar novas versoes da imagem, basta alterar este valor. -->
+        <docker.image.tag>1.2.0</docker.image.tag>
+
+        <dockerfile-maven-plugin.version>1.4.13</dockerfile-maven-plugin.version>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webmvc</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webmvc-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+
+            <!-- Este projeto nao publica o jar em um repositorio Maven, apenas a
+                 imagem Docker (abaixo). Desativa o goal "deploy" padrao para que
+                 a fase "deploy" nao falhe por falta de <distributionManagement>. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+
+            <!-- Equivalente, no Maven, ao plugin do Docker aplicado no build.gradle
+                 (buildscript + apply plugin + tasks dockerBuild/dockerPush).
+                 O Maven baixa o plugin automaticamente do Maven Central, entao nao
+                 existe a secao "buildscript { repositories/dependencies }". -->
+            <plugin>
+                <groupId>com.spotify</groupId>
+                <artifactId>dockerfile-maven-plugin</artifactId>
+                <version>${dockerfile-maven-plugin.version}</version>
+                <executions>
+                    <!-- Gera a imagem no "mvn package" (equivale a task dockerBuild). -->
+                    <execution>
+                        <id>build-image</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>build</goal>
+                            <goal>tag</goal>
+                        </goals>
+                    </execution>
+                    <!-- Envia a imagem para o Docker Hub no "mvn deploy"
+                         (equivale a task dockerPush1.0.0). -->
+                    <execution>
+                        <id>push-image</id>
+                        <phase>deploy</phase>
+                        <goals>
+                            <goal>push</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <!-- Endereco da imagem: <docker-hub-id>/<nome-do-repositorio> -->
+                    <repository>${docker.image.prefix}/${docker.image.name}</repository>
+                    <tag>${docker.image.tag}</tag>
+                    <!-- Le usuario/senha do <server id="docker.io"> do ~/.m2/settings.xml. -->
+                    <useMavenSettingsForAuth>true</useMavenSettingsForAuth>
+                    <!-- Passa o caminho do jar gerado para o ARG JAR_FILE do Dockerfile. -->
+                    <buildArgs>
+                        <JAR_FILE>target/${project.build.finalName}.jar</JAR_FILE>
+                    </buildArgs>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

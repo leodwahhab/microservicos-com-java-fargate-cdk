@@ -16,7 +16,7 @@ public class CursoAwsCdkApp {
 
         SnsStack snsStack = new SnsStack(app, "SnsStack");
 
-        Service01Stack service01Stack = new Service01Stack(app, "Service01", clusterStack.getCluster());
+        Service01Stack service01Stack = new Service01Stack(app, "Service01", clusterStack.getCluster(), snsStack.getProductEventsTopic());
         service01Stack.addStackDependency(clusterStack);
         service01Stack.addStackDependency(rdsStack);
         service01Stack.addStackDependency(snsStack);

@@ -36,7 +36,7 @@
         <docker.image.name>curso_aws_project01</docker.image.name>
         <!-- Equivalente ao "bootJar.version": a versao/tag da imagem que sera gerada.
              Para gerar novas versoes da imagem, basta alterar este valor. -->
-        <docker.image.tag>1.2.0</docker.image.tag>
+        <docker.image.tag>1.3.0</docker.image.tag>
 
         <dockerfile-maven-plugin.version>1.4.13</dockerfile-maven-plugin.version>
     </properties>
@@ -63,6 +63,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>sns</artifactId>
+            <version>2.55.1</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>

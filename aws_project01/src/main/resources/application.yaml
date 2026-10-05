@@ -5,6 +5,13 @@ spring:
     hibernate:
       ddl-auto: update
   datasource:
-    url: jdbc:mariadb://localhost:3306/aws_project01?createDatabaseIfNotExist=true
-    username: ${databaseUser}
-    password: ${databasePassword}
+    url: jdbc:mariadb://aws-project01-db.clec8eim0rzi.us-east-1.rds.amazonaws.com:3306/aws_project01?createDatabaseIfNotExist=true
+    username: admin
+    password: matilde123456
+aws:
+  region: us-east-1
+  sns:
+    topic:
+      product:
+        events:
+          arn: product-events

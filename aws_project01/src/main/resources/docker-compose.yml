@@ -1,0 +1,9 @@
+services:
+  localstack:
+    container_name: localstack
+    image: localstack/localstack
+    ports:
+      - '4566:4566'
+    environment:
+      - LOCALSTACK_AUTH_TOKEN=ls-devixaGo-lamA-Qabi-1499-RAyu0602702b
+      - SERVICES=sns

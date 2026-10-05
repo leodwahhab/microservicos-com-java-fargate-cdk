@@ -36,7 +36,7 @@ public class Service01Stack extends Stack {
                 .taskImageOptions( // Configuração do container que roda dentro da task
                         ApplicationLoadBalancedTaskImageOptions.builder()
                                 .containerName("aws_project01") // Nome do container na Task Definition
-                                .image(ContainerImage.fromRegistry("leodwahhab/curso_aws_project01:2.0.0")) // Imagem Docker baixada do Docker Hub
+                                .image(ContainerImage.fromRegistry("leodwahhab/curso_aws_project01:1.3.0")) // Imagem Docker baixada do Docker Hub
                                 .containerPort(8080) // Porta exposta pelo container (destino do Target Group do ALB)
                                 .logDriver(LogDriver.awsLogs(AwsLogDriverProps.builder() // Envia os logs do container para o CloudWatch Logs
                                                 .logGroup(LogGroup.Builder.create(this, "Service01LogGroup") // Cria o Log Group no CloudWatch

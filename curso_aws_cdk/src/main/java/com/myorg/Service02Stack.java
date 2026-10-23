@@ -8,6 +8,9 @@ import software.amazon.awscdk.services.ecs.patterns.ApplicationLoadBalancedTaskI
 import software.amazon.awscdk.services.elasticloadbalancingv2.HealthCheck;
 import software.amazon.awscdk.services.events.targets.SnsTopic;
 import software.amazon.awscdk.services.logs.LogGroup;
+import software.amazon.awscdk.services.sns.subscriptions.SqsSubscription;
+import software.amazon.awscdk.services.sqs.DeadLetterQueue;
+import software.amazon.awscdk.services.sqs.Queue;
 import software.constructs.Construct;
 
 import java.util.HashMap;
@@ -21,13 +24,24 @@ public class Service02Stack extends Stack {
     public Service02Stack(final Construct scope, final String id, final StackProps props, Cluster cluster, SnsTopic productEventsTopic) {
         super(scope, id, props);
 
+        DeadLetterQueue productEventsDeadLetterQueue = DeadLetterQueue.builder()
+                .queue(Queue.Builder.create(this, "ProductEventsDlq")
+                        .queueName("product-events-dlq")
+                        .build())
+                .maxReceiveCount(3)
+                .build();
+
+        Queue productEventsQueue = Queue.Builder.create(this, "ProductEvents")
+                .queueName("product-events")
+                .deadLetterQueue(productEventsDeadLetterQueue)
+                .build();
+
+        SqsSubscription sqsSubscription = SqsSubscription.Builder.create(productEventsQueue).build();
+        productEventsTopic.getTopic().addSubscription(sqsSubscription);
+
         Map<String, String> envVariables = new HashMap<>();
-        envVariables.put("SPRING_DATASOURCE_URL", "jdbc:mariadb://" + Fn.importValue("rds-endpoint")
-                + ":3306/aws_project01?createDatabaseIfNotExist=true");
-        envVariables.put("SPRING_DATASOURCE_USERNAME", "admin");
-        envVariables.put("SPRING_DATASOURCE_PASSWORD", Fn.importValue("rds-password"));
         envVariables.put("AWS_REGION", "us-east-1");
-        envVariables.put("AWS_SNS_TOPIC_PRODUCT_EVENTS_ARN", productEventsTopic.getTopic().getTopicArn());
+        envVariables.put("AWS_SQS_QUEUE_PRODUCT_EVENTS_NAME", productEventsQueue.getQueueName());
 
         ApplicationLoadBalancedFargateService service02 = ApplicationLoadBalancedFargateService.Builder.create(this, id) // Cria serviço ECS Fargate + ALB, Task Definition, Target Group, Listener e Security Groups
                 .cluster(cluster) // Reaproveita o cluster (e a VPC dele) já existentes, em vez de criar novos
